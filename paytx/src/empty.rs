@@ -27,6 +27,9 @@ pub trait PayTx {
     fn pay(&self, payment_id: u64) -> SCResult<ManagedAddress> {
         let payment_amount = self.payments().get(&payment_id).unwrap_or_default();
 
+        // TODO - check if payment_amount exists
+        // TODO - check if payment_amount is equal to the amount sent
+
         // Send from caller to payment account payment_amount EGLD
         self.send().direct_egld(&self.payment_account().get(), &self.call_value().egld_value());
         Ok(self.payment_account().get())
