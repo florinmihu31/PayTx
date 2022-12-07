@@ -14,25 +14,28 @@ pub trait PayTx {
 
     #[endpoint]
     fn register_payment(&self, payment_id: u64, payment_amount: BigUint) {
+        // Payment amount must be greater than 0
+        require!(payment_amount > 0, "Payment amount must be greater than 0");
+
         self.payments().insert(payment_id, payment_amount);
     }
 
     #[endpoint]
-    fn get_value(&self, payment_id: u64) -> BigUint {
-        self.payments().get(&payment_id).unwrap_or_default()
-    }
-
-    #[endpoint]
     #[payable("EGLD")]
-    fn pay(&self, payment_id: u64) -> SCResult<ManagedAddress> {
+    fn pay(&self, payment_id: u64) {
         let payment_amount = self.payments().get(&payment_id).unwrap_or_default();
 
-        // TODO - check if payment_amount exists
-        // TODO - check if payment_amount is equal to the amount sent
+        // Check if payment_amount is equal to the amount sent
+        require!(payment_amount != 0, "Payment ID does not exist");
+        
+        // Check if payment_amount is equal to the amount sent
+        require!(payment_amount == self.call_value().egld_value(), "Payment amount does not match");
 
         // Send from caller to payment account payment_amount EGLD
         self.send().direct_egld(&self.payment_account().get(), &self.call_value().egld_value());
-        Ok(self.payment_account().get())
+
+        // Remove payment from payments map
+        self.payments().remove(&payment_id);
     }
 
     // Map with uuid as key and payment as value

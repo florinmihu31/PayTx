@@ -9,7 +9,6 @@ elrond_wasm_node::wasm_endpoints! {
     (
         getPaymentAccount
         getPayments
-        get_value
         pay
         register_payment
     )
