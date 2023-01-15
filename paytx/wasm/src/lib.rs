@@ -7,8 +7,6 @@
 elrond_wasm_node::wasm_endpoints! {
     paytx
     (
-        getPaymentAccount
-        getPayments
         pay
         register_payment
     )
